@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Atividade Prática 05 - Flappy Bird",
+    "slug": "atividade-pratica-05-flappy-bird",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {},
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": ["expo-asset"]
+  }
+}
