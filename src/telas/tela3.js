@@ -1,10 +1,20 @@
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { AppShell, NumeroBola, PrimaryButton, ScreenTitle, styles as sharedStyles } from '../shared/appShared';
+import {
+  AppShell,
+  Card,
+  CardTitulo,
+  NumeroBola,
+  PrimaryButton,
+  ScreenTitle,
+  TicketBox,
+  styles as sharedStyles,
+} from '../shared/appShared';
 import { useGame } from '../shared/GameContext';
 import { contarAcertos, formatarDezena } from '../shared/gameUtils';
-import { CORES } from '../shared/theme';
+import { CORES, RAIO } from '../shared/theme';
 
 export default function Tela3({ navigation }) {
   const {
@@ -16,7 +26,7 @@ export default function Tela3({ navigation }) {
   } = useGame();
 
   useEffect(() => {
-    const timer = setTimeout(() => navigation.replace('Resultado'), 2800);
+    const timer = setTimeout(() => navigation.replace('Resultado'), 3500);
     return () => clearTimeout(timer);
   }, [navigation]);
 
@@ -24,60 +34,78 @@ export default function Tela3({ navigation }) {
 
   return (
     <AppShell>
-      <ScrollView contentContainerStyle={sharedStyles.content} style={sharedStyles.flex}>
-        <ScreenTitle subtitle="Sorteio em andamento" title="Megasena" />
+      <ScrollView
+        contentContainerStyle={sharedStyles.content}
+        showsVerticalScrollIndicator={false}
+        style={sharedStyles.flex}
+      >
+        <ScreenTitle badge="Ao vivo" subtitle="Sorteio em andamento…" title="Megasena" />
 
-        <View style={sharedStyles.card}>
-          <Text style={sharedStyles.cardTitulo}>Número do bilhete</Text>
-          <Text style={localStyles.bilhete}>{numeroBilhete}</Text>
+        <View style={localStyles.loadingRow}>
+          <ActivityIndicator color={CORES.verdeMega} size="small" />
+          <Text style={localStyles.loadingTexto}>Gerando resultado…</Text>
         </View>
 
-        <View style={sharedStyles.card}>
-          <Text style={sharedStyles.cardTitulo}>Sua aposta</Text>
+        <TicketBox numero={numeroBilhete} />
+
+        <Card>
+          <CardTitulo>Sua aposta</CardTitulo>
           <View style={localStyles.linhaNumeros}>
             {numerosEscolhidos.map((numero) => (
               <NumeroBola key={numero} numero={numero} pequeno selecionado />
             ))}
           </View>
-        </View>
+        </Card>
 
-        <View style={sharedStyles.card}>
-          <Text style={sharedStyles.cardTitulo}>Resultado do sorteio (6 dezenas)</Text>
+        <Card>
+          <CardTitulo>Dezenas sorteadas</CardTitulo>
           <View style={localStyles.linhaNumeros}>
             {numerosSorteados.map((numero) => (
               <NumeroBola
                 key={numero}
+                acerto={numerosEscolhidos.includes(numero)}
                 numero={numero}
                 pequeno
                 selecionado={numerosEscolhidos.includes(numero)}
               />
             ))}
           </View>
-          <Text style={localStyles.acertos}>
-            Você acertou {acertos} {acertos === 1 ? 'dezena' : 'dezenas'} neste sorteio.
-          </Text>
-        </View>
+
+          <LinearGradient
+            colors={['rgba(32,152,105,0.15)', 'rgba(52,211,153,0.08)']}
+            style={localStyles.acertosBox}
+          >
+            <Text style={localStyles.acertosNumero}>{acertos}</Text>
+            <Text style={localStyles.acertosTexto}>
+              {acertos === 1 ? 'acerto neste sorteio' : 'acertos neste sorteio'}
+            </Text>
+          </LinearGradient>
+        </Card>
 
         {teimosinha && resultadosTeimosinha.length > 1 ? (
-          <View style={sharedStyles.card}>
-            <Text style={sharedStyles.cardTitulo}>Teimosinha — demais sorteios</Text>
+          <Card>
+            <CardTitulo>Teimosinha — próximos sorteios</CardTitulo>
             {resultadosTeimosinha.slice(1).map((item, indice) => {
               const hits = contarAcertos(numerosEscolhidos, item.sorteados);
               return (
                 <View key={`sorteio-${indice + 2}`} style={localStyles.teimosinhaItem}>
-                  <Text style={localStyles.teimosinhaTitulo}>Sorteio {indice + 2}</Text>
+                  <View style={localStyles.teimosinhaHeader}>
+                    <Text style={localStyles.teimosinhaTitulo}>Sorteio {indice + 2}</Text>
+                    <View style={localStyles.teimosinhaBadge}>
+                      <Text style={localStyles.teimosinhaBadgeTexto}>{hits} ✓</Text>
+                    </View>
+                  </View>
                   <Text style={localStyles.teimosinhaNumeros}>
-                    {item.sorteados.map(formatarDezena).join('  ')}
+                    {item.sorteados.map(formatarDezena).join('   ')}
                   </Text>
-                  <Text style={localStyles.teimosinhaAcertos}>{hits} acerto(s)</Text>
                 </View>
               );
             })}
-          </View>
+          </Card>
         ) : null}
 
         <PrimaryButton onPress={() => navigation.replace('Resultado')}>
-          Ver resultado completo
+          Ver resultado completo →
         </PrimaryButton>
       </ScrollView>
     </AppShell>
@@ -85,12 +113,16 @@ export default function Tela3({ navigation }) {
 }
 
 const localStyles = StyleSheet.create({
-  bilhete: {
-    color: CORES.azulBotao,
-    fontSize: 26,
-    fontWeight: '900',
-    letterSpacing: 1,
-    textAlign: 'center',
+  loadingRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'center',
+  },
+  loadingTexto: {
+    color: CORES.verdeEscuro,
+    fontSize: 14,
+    fontWeight: '700',
   },
   linhaNumeros: {
     flexDirection: 'row',
@@ -98,34 +130,57 @@ const localStyles = StyleSheet.create({
     gap: 6,
     justifyContent: 'center',
   },
-  acertos: {
+  acertosBox: {
+    alignItems: 'center',
+    borderRadius: RAIO.md,
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'center',
+    marginTop: 16,
+    padding: 16,
+  },
+  acertosNumero: {
     color: CORES.verdeMega,
-    fontSize: 16,
-    fontWeight: '800',
-    marginTop: 14,
-    textAlign: 'center',
+    fontSize: 36,
+    fontWeight: '900',
+  },
+  acertosTexto: {
+    color: CORES.verdeEscuro,
+    fontSize: 15,
+    fontWeight: '700',
   },
   teimosinhaItem: {
-    borderTopColor: '#e2e8f0',
+    borderTopColor: CORES.cinzaBorda,
     borderTopWidth: 1,
-    marginTop: 10,
-    paddingTop: 10,
+    marginTop: 12,
+    paddingTop: 12,
+  },
+  teimosinhaHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   teimosinhaTitulo: {
     color: CORES.verdeEscuro,
     fontSize: 14,
     fontWeight: '800',
   },
-  teimosinhaNumeros: {
-    color: CORES.textoEscuro,
-    fontSize: 15,
-    fontWeight: '700',
-    marginTop: 4,
+  teimosinhaBadge: {
+    backgroundColor: CORES.verdeMega,
+    borderRadius: RAIO.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
-  teimosinhaAcertos: {
+  teimosinhaBadgeTexto: {
+    color: CORES.branco,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  teimosinhaNumeros: {
     color: CORES.textoMedio,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
-    marginTop: 2,
+    letterSpacing: 1,
+    marginTop: 6,
   },
 });
