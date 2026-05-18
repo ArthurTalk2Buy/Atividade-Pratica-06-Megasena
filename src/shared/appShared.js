@@ -1,94 +1,63 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const VARIANTS = {
-  sky: ['#38bdf8', '#6366f1', '#a855f7'],
-  night: ['#0f172a', '#1e293b', '#312e81'],
-  flappy: ['#71C5CF', '#8FD4E0', '#B8E8F0'],
-};
+import { CORES } from './theme';
 
-export function AppShell({ children, variant = 'sky' }) {
-  const colors = VARIANTS[variant] || VARIANTS.sky;
+export function AppShell({ children }) {
   return (
-    <LinearGradient colors={colors} style={styles.gradient}>
-      <StatusBar style={variant === 'night' ? 'light' : 'dark'} />
-      <View pointerEvents="none" style={styles.decorLayer}>
-        <View style={[styles.orb, styles.orbTop]} />
-        <View style={[styles.orb, styles.orbBottom]} />
-        {(variant === 'flappy' || variant === 'sky') && (
-          <>
-            <View style={[styles.cloudSoft, { top: '8%', left: '5%' }]} />
-            <View style={[styles.cloudSoft, { top: '14%', right: '8%', opacity: 0.9 }]} />
-          </>
-        )}
-      </View>
+    <View style={styles.fundo}>
+      <StatusBar style="dark" />
       <SafeAreaView style={styles.safeArea}>{children}</SafeAreaView>
-    </LinearGradient>
-  );
-}
-
-export function PrimaryButton({ children, onPress, variant = 'primary' }) {
-  return (
-    <TouchableOpacity activeOpacity={0.88} onPress={onPress} style={styles.buttonShadow}>
-      <LinearGradient
-        colors={variant === 'primary' ? ['#E86A17', '#f97316'] : ['#FFFFFF', '#e8f8fa']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.button}
-      >
-        <Text style={[styles.buttonText, variant !== 'primary' && styles.buttonTextDark]}>
-          {children}
-        </Text>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
-}
-
-export function ScreenTitle({ title, subtitle, light }) {
-  return (
-    <View style={styles.screenTitleBlock}>
-      <Text style={[styles.screenTitle, light && styles.screenTitleOnDark]}>{title}</Text>
-      {subtitle ? (
-        <Text style={[styles.screenSubtitle, light && styles.screenSubtitleOnDark]}>{subtitle}</Text>
-      ) : null}
     </View>
   );
 }
 
+export function PrimaryButton({ children, onPress, disabled }) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      disabled={disabled}
+      onPress={onPress}
+      style={[styles.botao, disabled && styles.botaoDesabilitado]}
+    >
+      <Text style={styles.botaoTexto}>{children}</Text>
+    </TouchableOpacity>
+  );
+}
+
+export function ScreenTitle({ title, subtitle }) {
+  return (
+    <View style={styles.tituloBloco}>
+      <Text style={styles.titulo}>{title}</Text>
+      {subtitle ? <Text style={styles.subtitulo}>{subtitle}</Text> : null}
+    </View>
+  );
+}
+
+export function NumeroBola({ numero, selecionado, pequeno, onPress }) {
+  const conteudo = (
+    <View style={[styles.bola, selecionado && styles.bolaSelecionada, pequeno && styles.bolaPequena]}>
+      <Text style={[styles.bolaTexto, selecionado && styles.bolaTextoSelecionado, pequeno && styles.bolaTextoPequeno]}>
+        {String(numero).padStart(2, '0')}
+      </Text>
+    </View>
+  );
+
+  if (!onPress) return conteudo;
+
+  return (
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
+      {conteudo}
+    </TouchableOpacity>
+  );
+}
+
 export const styles = StyleSheet.create({
-  gradient: {
+  fundo: {
+    backgroundColor: CORES.fundo,
     flex: 1,
-  },
-  decorLayer: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-  },
-  orb: {
-    position: 'absolute',
-    backgroundColor: 'rgba(255, 255, 255, 0.14)',
-    borderRadius: 999,
-  },
-  orbTop: {
-    height: 180,
-    right: -60,
-    top: -40,
-    width: 180,
-  },
-  orbBottom: {
-    bottom: 60,
-    height: 240,
-    left: -100,
-    width: 240,
-  },
-  cloudSoft: {
-    position: 'absolute',
-    width: 80,
-    height: 28,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.55)',
   },
   safeArea: {
     flex: 1,
@@ -97,135 +66,99 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 22,
-    paddingBottom: 34,
-    gap: 18,
+    flex: 1,
+    gap: 16,
+    padding: 20,
+    paddingBottom: 28,
   },
-  screenTitleBlock: {
-    marginBottom: 6,
+  tituloBloco: {
+    alignItems: 'center',
+    marginBottom: 4,
   },
-  screenTitle: {
-    color: '#FFFFFF',
-    fontSize: 28,
+  titulo: {
+    color: CORES.verdeEscuro,
+    fontSize: 32,
     fontWeight: '900',
-    textShadowColor: 'rgba(0,0,0,0.15)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    textAlign: 'center',
   },
-  screenTitleOnDark: {
-    textShadowColor: 'rgba(0,0,0,0.4)',
-  },
-  screenSubtitle: {
-    marginTop: 6,
-    color: 'rgba(15, 60, 70, 0.85)',
+  subtitulo: {
+    color: CORES.textoMedio,
     fontSize: 15,
     fontWeight: '600',
     lineHeight: 22,
-  },
-  screenSubtitleOnDark: {
-    color: 'rgba(226, 232, 240, 0.92)',
-  },
-  heroCard: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.18)',
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    borderRadius: 32,
-    borderWidth: 1,
-    padding: 26,
-  },
-  emoji: {
-    fontSize: 44,
-    marginBottom: 10,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 30,
-    fontWeight: '900',
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: '#f0f9ff',
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 12,
+    marginTop: 6,
     textAlign: 'center',
   },
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 28,
-    padding: 22,
-    shadowColor: '#1e3a8a',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.14,
-    shadowRadius: 24,
-    elevation: 8,
+    backgroundColor: CORES.branco,
+    borderRadius: 20,
+    elevation: 4,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
   },
-  cardTitle: {
-    color: '#0f172a',
-    fontSize: 20,
-    fontWeight: '900',
+  cardTitulo: {
+    color: CORES.verdeEscuro,
+    fontSize: 18,
+    fontWeight: '800',
     marginBottom: 10,
   },
-  paragraph: {
-    color: '#475569',
-    fontSize: 16,
-    lineHeight: 24,
+  paragrafo: {
+    color: CORES.textoMedio,
+    fontSize: 15,
+    lineHeight: 23,
     marginBottom: 8,
   },
-  bullet: {
-    color: '#334155',
-    fontSize: 16,
-    fontWeight: '700',
-    lineHeight: 26,
-    marginLeft: 4,
+  itemLista: {
+    color: CORES.textoEscuro,
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 24,
   },
-  buttonShadow: {
-    shadowColor: '#1e3a8a',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 18,
-    elevation: 7,
-  },
-  button: {
+  botao: {
     alignItems: 'center',
-    borderRadius: 20,
+    backgroundColor: CORES.azulBotao,
+    borderRadius: 12,
     paddingHorizontal: 18,
     paddingVertical: 16,
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '900',
+  botaoDesabilitado: {
+    opacity: 0.45,
   },
-  buttonTextDark: {
-    color: '#0f172a',
-  },
-  disclaimerBox: {
-    backgroundColor: '#fef3c7',
-    borderColor: '#fcd34d',
-    borderRadius: 20,
-    borderWidth: 1,
-    marginTop: 8,
-    padding: 16,
-  },
-  disclaimerText: {
-    color: '#78350f',
-    fontSize: 14,
-    fontWeight: '700',
-    lineHeight: 22,
-    textAlign: 'center',
-  },
-  creditLine: {
-    color: '#64748b',
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  creditStrong: {
-    color: '#0f172a',
+  botaoTexto: {
+    color: CORES.branco,
     fontSize: 16,
     fontWeight: '800',
-    textAlign: 'center',
+  },
+  bola: {
+    alignItems: 'center',
+    backgroundColor: CORES.branco,
+    borderColor: CORES.cinzaBorda,
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  bolaPequena: {
+    height: 32,
+    width: 32,
+  },
+  bolaSelecionada: {
+    backgroundColor: CORES.azulSelecionado,
+    borderColor: CORES.azulSelecionado,
+  },
+  bolaTexto: {
+    color: CORES.textoEscuro,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  bolaTextoPequeno: {
+    fontSize: 11,
+  },
+  bolaTextoSelecionado: {
+    color: CORES.branco,
   },
 });

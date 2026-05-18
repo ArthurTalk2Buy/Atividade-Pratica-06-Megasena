@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { GameProvider } from './src/shared/GameContext';
 import Tela1 from './src/telas/tela1';
 import Tela2 from './src/telas/tela2';
 import Tela3 from './src/telas/tela3';
@@ -13,19 +14,21 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: 'slide_from_right',
-          }}
-        >
-          <Stack.Screen name="BoasVindas" component={Tela1} />
-          <Stack.Screen name="Instrucoes" component={Tela2} />
-          <Stack.Screen name="Jogo" component={Tela3} />
-          <Stack.Screen name="Creditos" component={Tela4} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <GameProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+          >
+            <Stack.Screen name="Orientacoes" component={Tela1} />
+            <Stack.Screen name="Aposta" component={Tela2} />
+            <Stack.Screen name="Sorteio" component={Tela3} />
+            <Stack.Screen name="Resultado" component={Tela4} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </GameProvider>
     </SafeAreaProvider>
   );
 }
